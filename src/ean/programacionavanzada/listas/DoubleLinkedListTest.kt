@@ -3,6 +3,7 @@ package ean.programacionavanzada.listas
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
+
 internal class DoubleLinkedListTest {
     /**
      * Prueba de agregar al final
@@ -214,10 +215,9 @@ internal class DoubleLinkedListTest {
         val antes = lista[0]
         val desp = lista[1]
         assertTrue(antes == 35 && desp == 3)
-        lista.removeFirst()
 
         // Eliminamos el ultimo
-        //lista.removeLast()
+        lista.removeLast()
 
         // Verificamos el tamaño
         assertEquals(8, lista.size)
@@ -225,6 +225,7 @@ internal class DoubleLinkedListTest {
         // Verificamos el contenido. El último debera ser 35
         val ultimo = lista.last
         assertEquals(35, ultimo)
+
     }
 
     @Test
@@ -253,6 +254,8 @@ internal class DoubleLinkedListTest {
 
         lista[5] = 99
         assertEquals(11, lista.size)
+        var elem2 = lista[5]
+        assertEquals(99,elem2)
         elem = lista[5]
         val antes = lista[4]
         assertTrue(elem == 99 && antes == 35)

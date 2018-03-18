@@ -113,15 +113,18 @@ open class DoubleLinkedList<T> : IList<T> {
     override fun remove(position: Int) {
         require(!isEmpty)
         var nodo = primero
-        for (i in 0 until tam) {
-            if (position == 0) {
-                nodo!!.next!!.prev = null
-            } else if (i == position){
-                nodo!!.prev!!.next = nodo.next
-                nodo!!.next!!.prev = nodo.prev
-            }
-            nodo = nodo!!.next
+        if (position == 0) {
+            nodo!!.next!!.prev = null
             tam--
+        } else {
+            for (i in 0 until tam) {
+                if (i == position) {
+                    nodo!!.prev!!.next = nodo.next
+                    nodo!!.next!!.prev = nodo.prev
+                    tam--
+                }
+                nodo = nodo!!.next
+            }
         }
     }
 
@@ -136,14 +139,28 @@ open class DoubleLinkedList<T> : IList<T> {
      * Elimina el último elemento de la lista
      */
     override fun removeLast() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        var nodo = primero
+        for (i in 0 until tam) {
+            if (nodo!!.next == null) {
+                nodo!!.prev!!.next = null
+            }
+        }
+        tam--
     }
 
     /**
      * Elimina la primera ocurrencia del elemento especificado
      */
     override fun removeElement(element: T) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        var nodo = primero
+        for (i in 0 until tam) {
+            if (nodo!!.info == element && nodo!!.next != null) {
+                nodo.next!!.prev = nodo.prev
+                nodo.prev!!.next = nodo.next
+            } else if (nodo!!.info == element && nodo!!.next == null) {
+                removeLast()
+            }
+        }
     }
 
     /**
@@ -174,7 +191,9 @@ open class DoubleLinkedList<T> : IList<T> {
      * mensaje correspondiente
      */
     override fun tail(): IList<T> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        var lista2 = copy()
+        lista2.removeFirst()
+        return lista2
     }
 
     /**
@@ -182,7 +201,19 @@ open class DoubleLinkedList<T> : IList<T> {
      * existe en la lista
      */
     override fun indexOf(element: T): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        var nodo = primero
+        var resultado = 0
+        for (i in 0 until tam) {
+            if (nodo!!.info == element) {
+                resultado = i
+                break;
+            } else if (nodo.next == null) {
+                resultado = -1
+            } else {
+                nodo = nodo!!.next
+            }
+        }
+        return resultado
     }
 
     /**
@@ -190,150 +221,175 @@ open class DoubleLinkedList<T> : IList<T> {
      * la lista
      */
     override fun lastIndexOf(element: T): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        var nodo = ultimo
+        var resultado = 0
+        for (i in tam-1 downTo 0) {
+            if (nodo!!.info == element) {
+                resultado = i
+                break;
+            } else if (nodo.prev == null) {
+                resultado = -1
+            } else {
+                nodo = nodo!!.prev
+            }
+        }
+        return resultado
     }
 
-    /**
-     * Reemplaza el elemento en la posición especificada en la lista por elemento dado
-     *
-     */
-    override fun set(position: Int, element: T) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
+/**
+ * Reemplaza el elemento en la posición especificada en la lista por elemento dado
+ *
+ */
+override fun set(position: Int, element: T) {
+    var nodo = primero
+    for (i in 0 until tam) {
+        if (i == position) {
+            nodo!!.info = element
+        } else {
+            nodo = nodo!!.next
+        }
     }
+}
 
-    /**
-     * Obtiene una copia idéntica de esta lista.
-     */
-    override fun copy(): IList<T> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+/**
+ * Obtiene una copia idéntica de esta lista.
+ */
+override fun copy(): IList<T> {
+    var lista: IList<T>? = null
+    var nodo = primero
+    for (i in 0 until tam){
+        lista!!.add(nodo!!.info)
+        nodo = nodo!!.next
     }
+    return lista!!
+}
 
-    //------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
 
-    //-------------------------------------------------
-    // Esta clase implementa las operaciones de un nodo
-    // de la lista doblemente encadenada
-    //-------------------------------------------------
-    private inner class Node<T>(theInfo: T) {
+//-------------------------------------------------
+// Esta clase implementa las operaciones de un nodo
+// de la lista doblemente encadenada
+//-------------------------------------------------
+private inner class Node<T>(theInfo: T) {
+    // Atributos
+    var info: T = theInfo
+    var next: Node<T>? = null
+    var prev: Node<T>? = null
+}
+
+/**
+ * Retorna un iterador sobre los elementos de esta secuencia de elementos
+ */
+override fun iterator(): Iterator<T> {
+    return object : Iterator<T> {
         // Atributos
-        var info: T = theInfo
-        var next: Node<T>? = null
-        var prev: Node<T>? = null
-    }
+        private var nodo = primero
 
-    /**
-     * Retorna un iterador sobre los elementos de esta secuencia de elementos
-     */
-    override fun iterator(): Iterator<T> {
-        return object : Iterator<T> {
-            // Atributos
-            private var nodo = primero
+        /**
+         * Returns `true` if the iteration has more elements.
+         */
+        override fun hasNext(): Boolean = (nodo != null)
 
-            /**
-             * Returns `true` if the iteration has more elements.
-             */
-            override fun hasNext(): Boolean = (nodo != null)
-
-            /**
-             * Returns the next element in the iteration.
-             */
-            override fun next(): T {
-                val resp = nodo?.info
-                nodo = nodo?.next
-                return resp!!
-            }
+        /**
+         * Returns the next element in the iteration.
+         */
+        override fun next(): T {
+            val resp = nodo?.info
+            nodo = nodo?.next
+            return resp!!
         }
     }
+}
 
-    /**
-     * Elimina todos los elementos de esta lista
-     */
-    override fun clear() {
-        primero = null
-        ultimo = null
-        tam = 0
+/**
+ * Elimina todos los elementos de esta lista
+ */
+override fun clear() {
+    primero = null
+    ultimo = null
+    tam = 0
+}
+
+/**
+ * Convierte a cadena el objeto actual
+ */
+override fun toString(): String {
+    var res = StringBuffer("[")
+    var p = primero
+    var i = 0
+
+    while (p != null) {
+        res.append(p.info.toString())
+        if (i != (tam - 1)) {
+            res.append(", ")
+        }
+        i++
+        p = p.next
     }
+    res.append("]")
 
-    /**
-     * Convierte a cadena el objeto actual
-     */
-    override fun toString(): String {
-        var res = StringBuffer("[")
-        var p = primero
-        var i = 0
+    return "LinkedList(tam=$tam, info=$res)"
+}
 
-        while (p != null) {
-            res.append(p.info.toString())
-            if (i != (tam - 1)) {
-                res.append(", ")
-            }
-            i++
-            p = p.next
+/**
+ * Convierte la lista a una cadena de caracteres, pero recorriendo la lista del último al primer nodo
+ */
+fun toReverseString(): String {
+    var res = StringBuffer("[")
+    var p = ultimo
+    var i = 0
+
+    while (p != null) {
+        res.append(p.info.toString())
+        if (i != (tam - 1)) {
+            res.append(", ")
         }
-        res.append("]")
-
-        return "LinkedList(tam=$tam, info=$res)"
+        i++
+        p = p.prev
     }
+    res.append("]")
 
-    /**
-     * Convierte la lista a una cadena de caracteres, pero recorriendo la lista del último al primer nodo
-     */
-    fun toReverseString(): String {
-        var res = StringBuffer("[")
-        var p = ultimo
-        var i = 0
+    return "LinkedListR(tam=$tam, info=$res)"
+}
 
-        while (p != null) {
-            res.append(p.info.toString())
-            if (i != (tam - 1)) {
-                res.append(", ")
-            }
-            i++
-            p = p.prev
-        }
-        res.append("]")
-
-        return "LinkedListR(tam=$tam, info=$res)"
-    }
-
-    /**
-     * Permite saber si una lista es igual a otra. Solo podemos comparar listas, sin importar la implementación
-     */
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-        if (other !is IList<*>) {
-            return false
-        }
-
-        other as IList<T>
-
-        if (this.size != other.size) {
-            return false
-        }
-
-        var p = primero
-        var i = 0
-
-        while (p != null) {
-            if (p.info != other[i]) {
-                return false
-            }
-            i++
-            p = p.next
-        }
-
+/**
+ * Permite saber si una lista es igual a otra. Solo podemos comparar listas, sin importar la implementación
+ */
+override fun equals(other: Any?): Boolean {
+    if (this === other) {
         return true
     }
-
-    /**
-     * Obtiene un código Hash para este objeto a partir del tamaño
-     */
-    override fun hashCode(): Int {
-        return tam
+    if (other !is IList<*>) {
+        return false
     }
 
+    other as IList<T>
+
+    if (this.size != other.size) {
+        return false
+    }
+
+    var p = primero
+    var i = 0
+
+    while (p != null) {
+        if (p.info != other[i]) {
+            return false
+        }
+        i++
+        p = p.next
+    }
+
+    return true
+}
+
+/**
+ * Obtiene un código Hash para este objeto a partir del tamaño
+ */
+override fun hashCode(): Int {
+    return tam
+}
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -348,3 +404,4 @@ fun <E> asLinkedList(vararg elements: E): DoubleLinkedList<E> {
     }
     return result
 }
+
